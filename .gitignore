@@ -16,3 +16,4 @@ test_output.txt
 final_results.log
 results.log
 *.log
+nltk_data/

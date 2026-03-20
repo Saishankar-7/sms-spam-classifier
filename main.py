@@ -12,29 +12,40 @@ import string
 import os
 import uvicorn
 
-# Ensure NLTK resources
-nltk.download('punkt', quiet=True)
-nltk.download('stopwords', quiet=True)
+# Set NLTK data path to a local directory in the app root
+nltk_data_path = os.path.join(os.path.dirname(__file__), 'nltk_data')
+os.makedirs(nltk_data_path, exist_ok=True)
+nltk.data.path.append(nltk_data_path)
+
+# Download resources to that specific path
+try:
+    nltk.download('punkt', download_dir=nltk_data_path, quiet=True)
+    nltk.download('stopwords', download_dir=nltk_data_path, quiet=True)
+except Exception as e:
+    print(f"NLTK download error: {e}")
 
 ps = PorterStemmer()
 
 def transform_text(text):
-    text = text.lower()
-    text = nltk.word_tokenize(text)
-    y = []
-    for i in text:
-        if i.isalnum():
-            y.append(i)
-    text = y[:]
-    y = []
-    for i in text:
-        if i not in stopwords.words('english') and i not in string.punctuation:
-            y.append(i)
-    text = y[:]
-    y = []
-    for i in text:
-        y.append(ps.stem(i))
-    return " ".join(y)
+    try:
+        text = text.lower()
+        text = nltk.word_tokenize(text)
+        y = []
+        for i in text:
+            if i.isalnum():
+                y.append(i)
+        text = y[:]
+        y = []
+        for i in text:
+            if i not in stopwords.words('english') and i not in string.punctuation:
+                y.append(i)
+        text = y[:]
+        y = []
+        for i in text:
+            y.append(ps.stem(i))
+        return " ".join(y)
+    except Exception as e:
+        raise Exception(f"Preprocessing error: {str(e)}")
 
 def scale_len(length):
     # Based on notebook statistics: min=2, max=910
@@ -43,22 +54,30 @@ def scale_len(length):
 app = FastAPI(title="SMS Spam Classifier")
 
 # Setup templates and static files directories
-os.makedirs("static", exist_ok=True)
-os.makedirs("templates", exist_ok=True)
+base_dir = os.path.dirname(__file__)
+static_dir = os.path.join(base_dir, "static")
+templates_dir = os.path.join(base_dir, "templates")
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
+os.makedirs(static_dir, exist_ok=True)
+os.makedirs(templates_dir, exist_ok=True)
 
-# Load models on startup
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
+templates = Jinja2Templates(directory=templates_dir)
+
+# Load models on startup with absolute paths
 try:
-    with open('model.pkl', 'rb') as f:
+    model_path = os.path.join(base_dir, 'model.pkl')
+    vectorizer_path = os.path.join(base_dir, 'vectorizer.pkl')
+    
+    with open(model_path, 'rb') as f:
         model = pickle.load(f)
-    with open('vectorizer.pkl', 'rb') as f:
+    with open(vectorizer_path, 'rb') as f:
         vectorizer = pickle.load(f)
 except Exception as e:
     print(f"Error loading models: {e}")
     model = None
     vectorizer = None
+    loading_error = str(e)
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
@@ -67,7 +86,10 @@ async def read_root(request: Request):
 @app.post("/predict")
 async def predict(text: str = Form(...)):
     if model is None or vectorizer is None:
-        return {"error": "Model not loaded properly"}
+        err_msg = "Model not loaded properly"
+        if 'loading_error' in globals():
+            err_msg += f": {loading_error}"
+        return {"error": err_msg}
     
     try:
         # Preprocess text

@@ -52,7 +52,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Error:', error);
-            alert('An error occurred while analyzing the message. Please ensure the server is running properly.');
+            const displayError = error.message || 'An error occurred while analyzing the message. Please ensure the server is running properly.';
+            alert(`Error: ${displayError}`);
         } finally {
             // Restore UI state
             button.disabled = false;
