@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMS Spam Classifier</title>
+    <!-- Preconnect to Google Fonts for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    
+    <div class="container">
+        <header>
+            <h1 class="gradient-text">SpamGuard</h1>
+            <p class="subtitle">AI-Powered SMS Spam Detection</p>
+        </header>
+
+        <main class="glass-card">
+            <form id="predict-form">
+                <div class="input-group">
+                    <label for="sms-text">Enter your message</label>
+                    <textarea 
+                        id="sms-text" 
+                        name="text" 
+                        placeholder="e.g., Free entry in 2 a wkly comp to win FA Cup final tkts 21st May 2005..." 
+                        required></textarea>
+                </div>
+                <button type="submit" class="glow-button">
+                    <span class="button-text">Analyze Message</span>
+                    <span class="spinner" style="display: none;"></span>
+                </button>
+            </form>
+
+            <div id="result-container" class="result-container hidden">
+                <div id="result-icon" class="result-icon"></div>
+                <h2 id="result-title" class="result-title"></h2>
+                <p id="result-message" class="result-message"></p>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
