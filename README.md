@@ -2,7 +2,7 @@
 
 A modern, AI-powered web application that classifies SMS messages as **Spam** or **Ham** (Safe) with high precision using Machine Learning.
 
-![Project Preview](static/preview.png) *(Note: Add a screenshot here if desired)*
+![Project Preview](static/preview.png) 
 
 ## 🚀 Features
 - **Real-time Prediction**: Instantly analyze messages for spam content.
