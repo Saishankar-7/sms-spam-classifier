@@ -12,8 +12,8 @@ import string
 import os
 import uvicorn
 
-# Set NLTK data path to a local directory in the app root
-nltk_data_path = os.path.join(os.path.dirname(__file__), 'nltk_data')
+# Set NLTK data path to a /tmp directory for cloud compatibility
+nltk_data_path = os.path.join('/tmp', 'nltk_data')
 os.makedirs(nltk_data_path, exist_ok=True)
 nltk.data.path.append(nltk_data_path)
 
@@ -78,6 +78,17 @@ except Exception as e:
     model = None
     vectorizer = None
     loading_error = str(e)
+
+@app.get("/health")
+async def health():
+    status = {
+        "model_loaded": model is not None,
+        "vectorizer_loaded": vectorizer is not None,
+        "nltk_data_path": nltk_data_path
+    }
+    if 'loading_error' in globals():
+        status["loading_error"] = loading_error
+    return status
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
