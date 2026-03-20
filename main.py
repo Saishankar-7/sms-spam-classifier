@@ -20,6 +20,7 @@ nltk.data.path.append(nltk_data_path)
 # Download resources to that specific path
 try:
     nltk.download('punkt', download_dir=nltk_data_path, quiet=True)
+    nltk.download('punkt_tab', download_dir=nltk_data_path, quiet=True)
     nltk.download('stopwords', download_dir=nltk_data_path, quiet=True)
 except Exception as e:
     print(f"NLTK download error: {e}")
